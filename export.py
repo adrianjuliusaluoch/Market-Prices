@@ -1,72 +1,61 @@
 # Import Packages
-import os
-import sys
-import json
-import time
-
-import pandas as pd
-import gspread
 from google.cloud import bigquery
-from google.oauth2.service_account import Credentials
+import pandas as pd
+import numpy as np
+import janitor
+import requests
+from io import StringIO
+import urllib3
+
 
 # Initialize BigQuery client
 client = bigquery.Client(project='crypto-stocks-01')
 
-# Define the scope for Google Sheets and BigQuery
-SCOPES = [
-    'https://www.googleapis.com/auth/spreadsheets',
-    'https://www.googleapis.com/auth/cloud-platform'
-]
+# Suppress InsecureRequestWarning
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-# Load credentials from environment variable
-credentials_path = os.environ['GOOGLE_APPLICATION_CREDENTIALS']
-creds = Credentials.from_service_account_file(credentials_path, scopes=SCOPES)
+base_url = "https://kamis.kilimo.go.ke/site/market{}?product=1&per_page=3000"
 
-# Initialize Google Sheets client
-gc = gspread.authorize(creds)
+bigdata = []
+offset = 0
 
-# Open the Google Sheet by URL
-spreadsheet = gc.open_by_url('https://docs.google.com/spreadsheets/d/1gacmcpjcinT7Dtug--lQz5FGzK05gFJNOE2fklxMbqY')
-worksheet = spreadsheet.sheet1  # Select the first sheet
+while True:
+    try:
+        # Handle first page (no offset in URL)
+        url = base_url.format("" if offset == 0 else f"/{offset}")
+        print(f"Fetching: {url}")
+        
+        response = requests.get(url, verify=False)
+        market_prices = pd.read_html(StringIO(response.text))
 
-# Get the total number of rows with data
-all_records = worksheet.get_all_records()
-num_rows = len(all_records)
+    except Exception as e:
+        print(f"Error fetching data: {e}")
+        break
+    
+    maize = market_prices[0]
+    
+    bigdata.append(maize)
+    offset += 3000
 
-# Check if there are more than 30 rows of data
-if num_rows <= 31:
-    print(f"Only {num_rows} rows found. Exiting without processing.")
-    sys.exit()  # Exit the script if 30 or fewer rows are found
+# Combine all pages into one DataFrame
+bigdata = pd.concat(bigdata, ignore_index=True)
+print(f"Collected {len(bigdata)} rows in total")
 
-# Extract Data, Convert to DataFrame
-df = pd.DataFrame(worksheet.get('A2:Z31'), columns=worksheet.row_values(1))
-
-# Original Data
-data = df.copy()
-
-# Standardize Column Names
-data.columns = data.columns.str.lower().str.replace(' ', '_').str.replace(r'[()]', '', regex=True)
-
-# Standardize Data Types
-data['price_usd'] = data['price_usd'].astype(str)
 
 # Define Table ID
-table_id = 'crypto-stocks-01.storage.top_cryptocurrency'
+table_id = 'crypto-stocks-01.storage.market_prices'
 
 # Export Data to BigQuery
-job = client.load_table_from_dataframe(data, table_id)
+job = client.load_table_from_dataframe(bigdata, table_id)
 while job.state != 'DONE':
     time.sleep(2)
     job.reload()
     print(job.state)
 
-# Delete Exported Rows
-worksheet.delete_rows(2, 31)
-
 # Define SQL Query to Retrieve Open Weather Data from Google Cloud BigQuery
 sql = (
     'SELECT *'
-    'FROM `crypto-stocks-01.storage.top_cryptocurrency`'
+    'FROM `crypto-stocks-01.storage.market_prices`'
            )
     
 # Run SQL Query
@@ -150,6 +139,7 @@ print(f"Data {data.shape} has been successfully retrieved, saved, and appended t
 
 # Exit 
 print(f'Cryptocurrency Data Export to Google BigQuery Successful')
+
 
 
 
