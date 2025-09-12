@@ -62,6 +62,8 @@ print(f"Collected {len(bigdata)} rows in total")
 # Clean Names
 bigdata = bigdata.clean_names()
 
+data["supply_volume"] = data["supply_volume"].astype(str)
+
 # Define Table ID
 table_id = 'project-adrian-aluoch.storage.market_prices'
 
