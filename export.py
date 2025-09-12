@@ -67,8 +67,6 @@ bigdata["supply_volume"] = bigdata["supply_volume"].astype(str)
 # Define Table ID
 table_id = 'project-adrian-aluoch.storage.market_prices'
 
-client.delete_table(table_id)
-
 # Export Data to BigQuery
 job = client.load_table_from_dataframe(bigdata, table_id)
 while job.state != 'DONE':
@@ -145,5 +143,6 @@ while job.state != 'DONE':
 
 # Return Data Info
 print(f"Data {data.shape} has been successfully retrieved, saved, and appended to the BigQuery table.")
+
 
 
