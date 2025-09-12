@@ -6,7 +6,8 @@ import janitor
 import requests
 from io import StringIO
 import urllib3
-
+import os
+import time
 
 # Initialize BigQuery client
 client = bigquery.Client(project='project-adrian-aluoch')
@@ -140,3 +141,4 @@ while job.state != 'DONE':
 
 # Return Data Info
 print(f"Data {data.shape} has been successfully retrieved, saved, and appended to the BigQuery table.")
+
