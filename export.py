@@ -62,7 +62,7 @@ print(f"Collected {len(bigdata)} rows in total")
 # Clean Names
 bigdata = bigdata.clean_names()
 
-data["supply_volume"] = data["supply_volume"].astype(str)
+bigdata["supply_volume"] = bigdata["supply_volume"].astype(str)
 
 # Define Table ID
 table_id = 'project-adrian-aluoch.storage.market_prices'
@@ -145,4 +145,5 @@ while job.state != 'DONE':
 
 # Return Data Info
 print(f"Data {data.shape} has been successfully retrieved, saved, and appended to the BigQuery table.")
+
 
