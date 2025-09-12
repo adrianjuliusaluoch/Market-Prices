@@ -9,41 +9,57 @@ import urllib3
 
 
 # Initialize BigQuery client
-client = bigquery.Client(project='crypto-stocks-01')
+client = bigquery.Client(project='project-adrian-aluoch')
 
 # Suppress InsecureRequestWarning
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-base_url = "https://kamis.kilimo.go.ke/site/market{}?product=1&per_page=3000"
+# Define Commodities
+commodities = [
+    249,  # Maize Flour
+    265, # Wheat Flour
+    4, # Rice
+    73, # Meat Beef
+    72, # Eggs
+    153, # Milk
+    154, # Kales
+    61,  # Tomatoes
+    158,  # Dry Onions
+]
 
-bigdata = []
-offset = 0
+# Create New Empty DataFrame
+bigdata = pd.DataFrame()
 
-while True:
-    try:
-        # Handle first page (no offset in URL)
-        url = base_url.format("" if offset == 0 else f"/{offset}")
-        print(f"Fetching: {url}")
+# Loop through commodities
+for commodity in commodities:
+    base_url = "https://kamis.kilimo.go.ke/site/market{}?product=" + str(commodity)+ "&per_page=3000"
+
+    # Define Offset
+    offset = 0
+
+    # Run
+    while True:
+        try:
+            # Handle first page (no offset in URL)
+            url = base_url.format("" if offset == 0 else f"/{offset}")
+            print(f"Fetching: {url}")
+            
+            response = requests.get(url, verify=False)
+            market_prices = pd.read_html(StringIO(response.text))
+
+        except Exception as e:
+            print(f"Error fetching data: {e}")
+            break
         
-        response = requests.get(url, verify=False)
-        market_prices = pd.read_html(StringIO(response.text))
+        market_prices = market_prices[0]
+        
+        bigdata = pd.concat([bigdata, market_prices], ignore_index=True)
+        offset += 3000
 
-    except Exception as e:
-        print(f"Error fetching data: {e}")
-        break
-    
-    maize = market_prices[0]
-    
-    bigdata.append(maize)
-    offset += 3000
-
-# Combine all pages into one DataFrame
-bigdata = pd.concat(bigdata, ignore_index=True)
 print(f"Collected {len(bigdata)} rows in total")
 
-
 # Define Table ID
-table_id = 'crypto-stocks-01.storage.market_prices'
+table_id = 'project-adrian-aluoch.storage.market_prices'
 
 # Export Data to BigQuery
 job = client.load_table_from_dataframe(bigdata, table_id)
@@ -55,8 +71,8 @@ while job.state != 'DONE':
 # Define SQL Query to Retrieve Open Weather Data from Google Cloud BigQuery
 sql = (
     'SELECT *'
-    'FROM `crypto-stocks-01.storage.market_prices`'
-           )
+    'FROM `project-adrian-aluoch.storage.market_prices`'
+      )
     
 # Run SQL Query
 data = client.query(sql).to_dataframe()
@@ -69,44 +85,29 @@ client.delete_table(table_id)
 print(f"Table deleted successfully.")
 
 # Check Total Number of Duplicate Records
-duplicated = data.duplicated(subset=[
-    'timestamp', 
-    'name', 
-    'symbol', 
-    'price_usd', 
-    'vol_24h', 
-    'total_vol', 
-    'chg_24h', 
-    'chg_7d', 
-    'market_cap']).sum()
+duplicated = data.duplicated(subset=['Commodity', 'Classification', 'Grade', 'Sex', 'Market', 'Wholesale',
+       'Retail', 'Supply Volume', 'County', 'Date']).sum()
     
 # Remove Duplicate Records
-data.drop_duplicates(subset=[
-    'timestamp', 
-    'name', 
-    'symbol', 
-    'price_usd', 
-    'vol_24h', 
-    'total_vol', 
-    'chg_24h', 
-    'chg_7d', 
-    'market_cap'], inplace=True)
+data.drop_duplicates(subset=['Commodity', 'Classification', 'Grade', 'Sex', 'Market', 'Wholesale',
+       'Retail', 'Supply Volume', 'County', 'Date'], inplace=True)
 
 # Define the dataset ID and table ID
 dataset_id = 'storage'
-table_id = 'top_cryptocurrency'
+table_id = 'market_prices'
     
 # Define the table schema for new table
 schema = [
-        bigquery.SchemaField("timestamp", "STRING"),
-        bigquery.SchemaField("name", "STRING"),
-        bigquery.SchemaField("symbol", "STRING"),
-        bigquery.SchemaField("price_usd", "STRING"),
-        bigquery.SchemaField("vol_24h", "STRING"),
-        bigquery.SchemaField("total_vol", "STRING"),
-        bigquery.SchemaField("chg_24h", "STRING"),
-        bigquery.SchemaField("chg_7d", "STRING"),
-        bigquery.SchemaField("market_cap", "STRING"),
+        bigquery.SchemaField("commodity", "STRING"),
+        bigquery.SchemaField("classification", "STRING"),
+        bigquery.SchemaField("grade", "STRING"),
+        bigquery.SchemaField("sex", "STRING"),
+        bigquery.SchemaField("market", "STRING"),
+        bigquery.SchemaField("wholesale", "STRING"),
+        bigquery.SchemaField("retail", "STRING"),
+        bigquery.SchemaField("supply_volume", "STRING"),
+        bigquery.SchemaField("county", "STRING"),
+        bigquery.SchemaField("date", "STRING")
     ]
     
 # Define the table reference
@@ -123,7 +124,10 @@ except Exception as e:
     print(f"Table {table.table_id} failed")
 
 # Define the BigQuery table ID
-table_id = 'crypto-stocks-01.storage.top_cryptocurrency'
+table_id = 'project-adrian-aluoch.storage.market_prices'
+
+# Clean Names
+data = data.clean_names()
 
 # Load the data into the BigQuery table
 job = client.load_table_from_dataframe(data, table_id)
@@ -136,25 +140,3 @@ while job.state != 'DONE':
 
 # Return Data Info
 print(f"Data {data.shape} has been successfully retrieved, saved, and appended to the BigQuery table.")
-
-# Exit 
-print(f'Cryptocurrency Data Export to Google BigQuery Successful')
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
