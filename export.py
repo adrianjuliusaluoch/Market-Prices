@@ -65,6 +65,8 @@ bigdata = bigdata.clean_names()
 # Define Table ID
 table_id = 'project-adrian-aluoch.storage.market_prices'
 
+client.delete_table(table_id)
+
 # Export Data to BigQuery
 job = client.load_table_from_dataframe(bigdata, table_id)
 while job.state != 'DONE':
