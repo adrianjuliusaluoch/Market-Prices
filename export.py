@@ -59,6 +59,9 @@ for commodity in commodities:
 
 print(f"Collected {len(bigdata)} rows in total")
 
+# Clean Names
+bigdata = bigdata.clean_names()
+
 # Define Table ID
 table_id = 'project-adrian-aluoch.storage.market_prices'
 
@@ -86,12 +89,12 @@ client.delete_table(table_id)
 print(f"Table deleted successfully.")
 
 # Check Total Number of Duplicate Records
-duplicated = data.duplicated(subset=['Commodity', 'Classification', 'Grade', 'Sex', 'Market', 'Wholesale',
-       'Retail', 'Supply Volume', 'County', 'Date']).sum()
+duplicated = data.duplicated(subset=['commodity', 'classification', 'grade', 'sex', 'market', 'wholesale',
+       'retail', 'supply_volume', 'county', 'date']).sum()
     
 # Remove Duplicate Records
-data.drop_duplicates(subset=['Commodity', 'Classification', 'Grade', 'Sex', 'Market', 'Wholesale',
-       'Retail', 'Supply Volume', 'County', 'Date'], inplace=True)
+data.drop_duplicates(subset=['commodity', 'classification', 'grade', 'sex', 'market', 'wholesale',
+       'retail', 'supply_volume', 'county', 'date'], inplace=True)
 
 # Define the dataset ID and table ID
 dataset_id = 'storage'
@@ -126,9 +129,6 @@ except Exception as e:
 
 # Define the BigQuery table ID
 table_id = 'project-adrian-aluoch.storage.market_prices'
-
-# Clean Names
-data = data.clean_names()
 
 # Load the data into the BigQuery table
 job = client.load_table_from_dataframe(data, table_id)
