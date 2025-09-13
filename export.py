@@ -62,10 +62,16 @@ print(f"Collected {len(bigdata)} rows in total")
 # Clean Names
 bigdata = bigdata.clean_names()
 
-bigdata["supply_volume"] = bigdata["supply_volume"].astype(str)
+# Standardize Data Types
+bigdata['date'] = pd.to_datetime(bigdata['date'])
+bigdata['wholesale'] = pd.to_numeric(bigdata['wholesale'].str.extract(r'(\d+\.?\d*)')[0], errors='coerce')
+bigdata['retail'] = pd.to_numeric(bigdata['retail'].str.extract(r'(\d+\.?\d*)')[0], errors='coerce')
+
+# Drop Variables
+bigdata.drop(columns=['grade', 'sex'], inplace=True)
 
 # Define Table ID
-table_id = 'project-adrian-aluoch.storage.market_prices'
+table_id = 'project-adrian-aluoch.food_basket.market_prices'
 
 # Export Data to BigQuery
 job = client.load_table_from_dataframe(bigdata, table_id)
@@ -77,7 +83,7 @@ while job.state != 'DONE':
 # Define SQL Query to Retrieve Open Weather Data from Google Cloud BigQuery
 sql = (
     'SELECT *'
-    'FROM `project-adrian-aluoch.storage.market_prices`'
+    'FROM `project-adrian-aluoch.food_basket.market_prices`'
       )
     
 # Run SQL Query
@@ -91,30 +97,28 @@ client.delete_table(table_id)
 print(f"Table deleted successfully.")
 
 # Check Total Number of Duplicate Records
-duplicated = data.duplicated(subset=['commodity', 'classification', 'grade', 'sex', 'market', 'wholesale',
+duplicated = data.duplicated(subset=['commodity', 'classification', 'market', 'wholesale',
        'retail', 'supply_volume', 'county', 'date']).sum()
     
 # Remove Duplicate Records
-data.drop_duplicates(subset=['commodity', 'classification', 'grade', 'sex', 'market', 'wholesale',
+data.drop_duplicates(subset=['commodity', 'classification', 'market', 'wholesale',
        'retail', 'supply_volume', 'county', 'date'], inplace=True)
 
 # Define the dataset ID and table ID
-dataset_id = 'storage'
+dataset_id = 'food_basket'
 table_id = 'market_prices'
     
 # Define the table schema for new table
 schema = [
-        bigquery.SchemaField("commodity", "STRING"),
-        bigquery.SchemaField("classification", "STRING"),
-        bigquery.SchemaField("grade", "STRING"),
-        bigquery.SchemaField("sex", "STRING"),
-        bigquery.SchemaField("market", "STRING"),
-        bigquery.SchemaField("wholesale", "STRING"),
-        bigquery.SchemaField("retail", "STRING"),
-        bigquery.SchemaField("supply_volume", "STRING"),
-        bigquery.SchemaField("county", "STRING"),
-        bigquery.SchemaField("date", "STRING")
-    ]
+    bigquery.SchemaField("commodity", "STRING"),
+    bigquery.SchemaField("classification", "STRING"),
+    bigquery.SchemaField("market", "STRING"),
+    bigquery.SchemaField("wholesale", "FLOAT"),
+    bigquery.SchemaField("retail", "FLOAT"),
+    bigquery.SchemaField("supply_volume", "FLOAT"),
+    bigquery.SchemaField("county", "STRING"),
+    bigquery.SchemaField("date", "DATE") 
+]
     
 # Define the table reference
 table_ref = client.dataset(dataset_id).table(table_id)
@@ -130,7 +134,7 @@ except Exception as e:
     print(f"Table {table.table_id} failed")
 
 # Define the BigQuery table ID
-table_id = 'project-adrian-aluoch.storage.market_prices'
+table_id = 'project-adrian-aluoch.food_basket.market_prices'
 
 # Load the data into the BigQuery table
 job = client.load_table_from_dataframe(data, table_id)
@@ -142,7 +146,8 @@ while job.state != 'DONE':
     print(job.state)
 
 # Return Data Info
-print(f"Data {data.shape} has been successfully retrieved, saved, and appended to the BigQuery table.")
+print(f"Food Basket data of shape {data.shape} has been successfully retrieved, saved, and appended to the BigQuery table.")
+
 
 
 
