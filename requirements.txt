@@ -2,6 +2,7 @@ pandas
 pyarrow  
 google-cloud-bigquery  
 google-cloud-bigquery-storage
+google-search-results
 db-dtypes  
 pandas_gbq
 pyjanitor
