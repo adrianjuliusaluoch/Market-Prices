@@ -11,7 +11,7 @@ client = bigquery.Client(project='project-adrian-aluoch')
 params = {
   "engine": "google_trends_trending_now",
   "geo": "KE",
-  "api_key": "f86e2c73cf2d7b98a8628fb905fee07e4e963e8551602ea7353290c667fefb80"
+  "api_key": "b5ff375270493ed785459ca9cabf233e7e81fd112d486c1bfc258de4dab10962"
 }
 
 # Get Data
