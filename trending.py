@@ -3,6 +3,7 @@ from google.cloud import bigquery
 from serpapi import GoogleSearch
 import pandas as pd
 import time
+import os
 
 # Initialize BigQuery client
 client = bigquery.Client(project='project-adrian-aluoch')
@@ -11,7 +12,7 @@ client = bigquery.Client(project='project-adrian-aluoch')
 params = {
   "engine": "google_trends_trending_now",
   "geo": "KE",
-  "api_key": "b5ff375270493ed785459ca9cabf233e7e81fd112d486c1bfc258de4dab10962"
+  "api_key": os.getenv("SERPAPI_KEY")
 }
 
 # Get Data
