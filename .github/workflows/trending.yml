@@ -1,4 +1,4 @@
-name: Export Market Prices to Google BigQuery
+name: Export Google Trends to Google BigQuery
 
 on:
   schedule:
