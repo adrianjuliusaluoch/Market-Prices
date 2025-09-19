@@ -2,11 +2,11 @@ name: Export Google Trends to Google BigQuery
 
 on:
   schedule:
-    - cron: '0 * * * *'  # Runs every hour
-  workflow_dispatch:  # ✅ Enables manual trigger
+    - cron: '0 0 * * *'   # Runs every day at 00:00 UTC
+  workflow_dispatch:       # ✅ Allows manual trigger
 
 jobs:
-  get_and_upload_market_data:
+  get_and_upload_trend_data:
     runs-on: ubuntu-latest
 
     steps:
