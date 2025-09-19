@@ -8,6 +8,8 @@ on:
 jobs:
   get_and_upload_trend_data:
     runs-on: ubuntu-latest
+    env:
+      SERPAPI_KEY: ${{ secrets.SERPAPI_KEY }}
 
     steps:
     - name: Checkout repository
