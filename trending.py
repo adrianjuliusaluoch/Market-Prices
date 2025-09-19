@@ -124,7 +124,7 @@ while job.state != 'DONE':
     print(job.state)
 
 # Return Data Info
-print(f"Food Basket data of shape {data.shape} has been successfully retrieved, saved, and appended to the BigQuery table.")
+print(f"Google Trending Now data of shape {data.shape} has been successfully retrieved, saved, and appended to the BigQuery table.")
 
 
 
