@@ -59,6 +59,7 @@ while job.state != 'DONE':
 sql = (
     'SELECT *'
     'FROM `project-adrian-aluoch.google_trends.google_trending_in_kenya`'
+    'ORDER BY start_date DESC;'
       )
     
 # Run SQL Query
