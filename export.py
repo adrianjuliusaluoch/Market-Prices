@@ -17,6 +17,7 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # Define Commodities
 commodities = [
+    1, # Dry Maize
     249,  # Maize Flour
     265, # Wheat Flour
     4, # Rice
@@ -147,6 +148,7 @@ while job.state != 'DONE':
 
 # Return Data Info
 print(f"Food Basket data of shape {data.shape} has been successfully retrieved, saved, and appended to the BigQuery table.")
+
 
 
 
