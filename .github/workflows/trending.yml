@@ -1,4 +1,4 @@
-name: Export Google Trends to Google BigQuery
+name: Export Kenya's Google Trends to Google BigQuery
 
 on:
   schedule:
