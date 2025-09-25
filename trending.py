@@ -73,10 +73,10 @@ client.delete_table(table_id)
 print(f"Table deleted successfully.")
 
 # Check Total Number of Duplicate Records
-duplicated = data.duplicated(subset=['query', 'search_volume']).sum()
+duplicated = data.duplicated(subset=['query', 'start_date']).sum()
     
 # Remove Duplicate Records
-data.drop_duplicates(subset=['query', 'search_volume'], inplace=True)
+data.drop_duplicates(subset=['query', 'start_date'], inplace=True)
 
 # Define the dataset ID and table ID
 dataset_id = 'google_trends'
