@@ -9,3 +9,5 @@ pyjanitor
 lxml
 html5lib
 beautifulsoup4
+openai
+nbconvert
