@@ -1,8 +1,8 @@
-name: Export Food Market Prices to Google BigQuery
+name: Key Commodities Price Changes
 
 on:
   schedule:
-    - cron: '0 * * * *'  # Runs every hour
+    - cron: '45 4 * * *'  # 7:45 AM EAT (4:45 AM UTC)
   workflow_dispatch:  # ✅ Enables manual trigger
 
 jobs:
