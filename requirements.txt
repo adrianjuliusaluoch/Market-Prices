@@ -10,4 +10,6 @@ lxml
 html5lib
 beautifulsoup4
 openai
+jupyter
+ipykernel
 nbconvert
