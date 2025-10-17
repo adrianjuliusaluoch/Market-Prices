@@ -1,5 +1,6 @@
 pandas  
 pyarrow  
+google-api-python-client
 google-cloud-bigquery  
 google-cloud-bigquery-storage
 google-search-results
