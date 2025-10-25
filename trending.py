@@ -12,6 +12,7 @@ client = bigquery.Client(project='project-adrian-aluoch')
 params = {
   "engine": "google_trends_trending_now",
   "geo": "KE",
+  "hours": 168,
   "api_key": os.getenv("SERPAPI_KEY")
 }
 
