@@ -1,0 +1,42 @@
+name: Scrape Jumia and Upload to BigQuery
+
+on:
+  schedule:
+    - cron: '0 */4 * * *'   # ⏰ Runs after every 4 hours
+  workflow_dispatch:         # ✅ Allows manual trigger from GitHub UI
+
+jobs:
+  scrape_and_upload:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Install dependencies and Firefox
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y firefox-esr
+        sudo apt-get install -y wget tar
+        pip install -r requirements.txt
+        
+        # Install latest Geckodriver manually
+        GECKODRIVER_VERSION=$(curl -s https://api.github.com/repos/mozilla/geckodriver/releases/latest | grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/')
+        wget -q "https://github.com/mozilla/geckodriver/releases/download/v${GECKODRIVER_VERSION}/geckodriver-v${GECKODRIVER_VERSION}-linux64.tar.gz"
+        tar -xzf geckodriver-v${GECKODRIVER_VERSION}-linux64.tar.gz
+        sudo mv geckodriver /usr/local/bin/
+        geckodriver --version
+
+    - name: Authenticate to Google Cloud
+      uses: google-github-actions/auth@v2
+      with:
+        credentials_json: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+
+    - name: Run Jumia scraping and upload script
+      run: |
+        jupyter nbconvert --to notebook --execute get_data.ipynb --output output.ipynb
