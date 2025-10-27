@@ -21,10 +21,13 @@ jobs:
     - name: Install dependencies and Firefox
       run: |
         sudo apt-get update
-        sudo apt-get install -y firefox-esr
         sudo apt-get install -y wget tar
         pip install -r requirements.txt
-        
+        pip install jupyter nbconvert
+    
+        # ✅ Install Firefox via Snap
+        sudo snap install firefox --channel=latest/stable
+    
         # Install latest Geckodriver manually
         GECKODRIVER_VERSION=$(curl -s https://api.github.com/repos/mozilla/geckodriver/releases/latest | grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/')
         wget -q "https://github.com/mozilla/geckodriver/releases/download/v${GECKODRIVER_VERSION}/geckodriver-v${GECKODRIVER_VERSION}-linux64.tar.gz"
