@@ -18,6 +18,9 @@ jobs:
       with:
         python-version: '3.12'
 
+    - name: Make geckodriver executable
+      run: chmod +x geckodriver
+
     - name: Install dependencies and Firefox
       run: |
         sudo apt-get update
