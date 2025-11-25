@@ -14,4 +14,3 @@ jupyter
 ipykernel
 nbconvert
 pycountry
-selenium
