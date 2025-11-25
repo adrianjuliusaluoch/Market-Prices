@@ -2,7 +2,6 @@
 from google.cloud import bigquery
 import pandas as pd
 import numpy as np
-import janitor
 import requests
 from io import StringIO
 import urllib3
