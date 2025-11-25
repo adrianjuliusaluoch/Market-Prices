@@ -2,7 +2,6 @@
 from google.cloud import bigquery
 import pandas as pd
 import numpy as np
-import janitor
 import requests
 from io import StringIO
 import urllib3
@@ -61,7 +60,13 @@ for commodity in commodities:
 print(f"Collected {len(bigdata)} rows in total")
 
 # Clean Names
-bigdata = bigdata.clean_names()
+bigdata.columns = (
+    bigdata.columns
+    .str.strip()
+    .str.lower()
+    .str.replace(" ", "_")
+    .str.replace(r"[^0-9a-zA-Z_]", "", regex=True)
+)
 
 # Standardize Data Types
 bigdata['date'] = pd.to_datetime(bigdata['date'])
@@ -148,6 +153,7 @@ while job.state != 'DONE':
 
 # Return Data Info
 print(f"Food Basket data of shape {data.shape} has been successfully retrieved, saved, and appended to the BigQuery table.")
+
 
 
 
