@@ -6,8 +6,6 @@ google-cloud-bigquery-storage
 google-search-results
 db-dtypes  
 pandas_gbq
-pandas_flavor==0.5.0
-pyjanitor
 lxml
 html5lib
 beautifulsoup4
