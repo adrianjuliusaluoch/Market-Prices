@@ -20,12 +20,32 @@ commodities = [
     249,  # Maize Flour
     265, # Wheat Flour
     4, # Rice
+    64, # Beans Rosecoco
+    183, # Beans Rosecoco (Nyayo)
+    10, # Green Grams
     73, # Meat Beef
     72, # Eggs
     153, # Milk
     154, # Kales
     61,  # Tomatoes
     158,  # Dry Onions
+    77, # Omena
+    255, # Banana Cooking
+    58, # Cabbages
+    59, # Sweet Potatoes
+    141, # Pork
+    150, # Water Melon
+    151, # Pineapples
+    147, # Mangoes
+    244, # Apples
+    60, # Carrots
+    184, # Nile Perch
+    80, # Trout
+    163, # White Irish Potato
+    57, # Red Irish Potato
+    68, # Tilapia
+    127, # Oranges
+    161, # Spinach
 ]
 
 # Create New Empty DataFrame
@@ -153,6 +173,7 @@ while job.state != 'DONE':
 
 # Return Data Info
 print(f"Food Basket data of shape {data.shape} has been successfully retrieved, saved, and appended to the BigQuery table.")
+
 
 
 
