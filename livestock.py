@@ -68,9 +68,6 @@ bigdata['date'] = pd.to_datetime(bigdata['date'])
 bigdata['wholesale'] = pd.to_numeric(bigdata['wholesale'].str.extract(r'(\d+\.?\d*)')[0], errors='coerce')
 bigdata['retail'] = pd.to_numeric(bigdata['retail'].str.extract(r'(\d+\.?\d*)')[0], errors='coerce')
 
-# Drop Variables
-bigdata.drop(columns=['grade', 'sex'], inplace=True)
-
 # Define Table ID
 table_id = 'project-adrian-aluoch.livestock.market_prices'
 
