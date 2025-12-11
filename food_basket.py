@@ -93,9 +93,6 @@ bigdata['date'] = pd.to_datetime(bigdata['date'])
 bigdata['wholesale'] = pd.to_numeric(bigdata['wholesale'].str.extract(r'(\d+\.?\d*)')[0], errors='coerce')
 bigdata['retail'] = pd.to_numeric(bigdata['retail'].str.extract(r'(\d+\.?\d*)')[0], errors='coerce')
 
-# Drop Variables
-bigdata.drop(columns=['grade', 'sex'], inplace=True)
-
 # Define Table ID
 table_id = 'project-adrian-aluoch.food_basket.market_prices'
 
@@ -123,11 +120,11 @@ client.delete_table(table_id)
 print(f"Table deleted successfully.")
 
 # Check Total Number of Duplicate Records
-duplicated = data.duplicated(subset=['commodity', 'classification', 'market', 'wholesale',
+duplicated = data.duplicated(subset=['commodity', 'classification', 'grade', 'sex', 'market', 'wholesale',
        'retail', 'supply_volume', 'county', 'date']).sum()
     
 # Remove Duplicate Records
-data.drop_duplicates(subset=['commodity', 'classification', 'market', 'wholesale',
+data.drop_duplicates(subset=['commodity', 'classification', 'grade', 'sex', 'market', 'wholesale',
        'retail', 'supply_volume', 'county', 'date'], inplace=True)
 
 # Define the dataset ID and table ID
@@ -138,6 +135,8 @@ table_id = 'market_prices'
 schema = [
     bigquery.SchemaField("commodity", "STRING"),
     bigquery.SchemaField("classification", "STRING"),
+    bigquery.SchemaField("grade", "STRING"),
+    bigquery.SchemaField("sex", "STRING"),
     bigquery.SchemaField("market", "STRING"),
     bigquery.SchemaField("wholesale", "FLOAT"),
     bigquery.SchemaField("retail", "FLOAT"),
@@ -173,6 +172,7 @@ while job.state != 'DONE':
 
 # Return Data Info
 print(f"Food Basket data of shape {data.shape} has been successfully retrieved, saved, and appended to the BigQuery table.")
+
 
 
 
