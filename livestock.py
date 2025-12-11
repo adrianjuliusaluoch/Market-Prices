@@ -18,7 +18,9 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 commodities = [
     140, # Cattle
     168, # Goats
-    167 # Sheep
+    167, # Sheep
+    211, # Pigs
+    227, # Chicken
 ]
 
 # Create New Empty DataFrame
