@@ -129,7 +129,7 @@ data.drop_duplicates(subset=['commodity', 'classification', 'grade', 'sex', 'mar
 
 # Define the dataset ID and table ID
 dataset_id = 'food'
-table_id = 'market_prices'
+table_id = 'data-storage-485106.food.market_prices'
     
 # Define the table schema for new table
 schema = [
@@ -172,3 +172,4 @@ while job.state != 'DONE':
 
 # Return Data Info
 print(f"Food Basket data of shape {data.shape} has been successfully retrieved, saved, and appended to the BigQuery table.")
+
