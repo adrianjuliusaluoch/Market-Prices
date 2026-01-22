@@ -9,7 +9,7 @@ import os
 import time
 
 # Initialize BigQuery client
-client = bigquery.Client(project='project-adrian-aluoch')
+client = bigquery.Client(project='data-storage-485106')
 
 # Suppress InsecureRequestWarning
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -69,7 +69,7 @@ bigdata['wholesale'] = pd.to_numeric(bigdata['wholesale'].str.extract(r'(\d+\.?\
 bigdata['retail'] = pd.to_numeric(bigdata['retail'].str.extract(r'(\d+\.?\d*)')[0], errors='coerce')
 
 # Define Table ID
-table_id = 'project-adrian-aluoch.livestock.market_prices'
+table_id = 'data-storage-485106.livestock.market_prices'
 
 # Export Data to BigQuery
 job = client.load_table_from_dataframe(bigdata, table_id)
@@ -81,7 +81,7 @@ while job.state != 'DONE':
 # Define SQL Query to Retrieve Open Weather Data from Google Cloud BigQuery
 sql = (
     'SELECT *'
-    'FROM `project-adrian-aluoch.livestock.market_prices`'
+    'FROM `data-storage-485106.livestock.market_prices`'
       )
     
 # Run SQL Query
@@ -134,7 +134,7 @@ except Exception as e:
     print(f"Table {table.table_id} failed")
 
 # Define the BigQuery table ID
-table_id = 'project-adrian-aluoch.livestock.market_prices'
+table_id = 'data-storage-485106.livestock.market_prices'
 
 # Load the data into the BigQuery table
 job = client.load_table_from_dataframe(data, table_id)
