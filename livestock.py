@@ -104,7 +104,7 @@ data.drop_duplicates(subset=['commodity', 'classification', 'grade', 'sex', 'mar
 
 # Define the dataset ID and table ID
 dataset_id = 'livestock'
-table_id = 'market_prices'
+table_id = 'data-storage-485106.livestock.market_prices'
     
 # Define the table schema for new table
 schema = [
