@@ -81,7 +81,7 @@ data.drop_duplicates(subset=['query', 'start_date'], inplace=True)
 
 # Define the dataset ID and table ID
 dataset_id = 'google'
-table_id = 'trending_now'
+table_id = 'data-storage-485106.google.trending_now
     
 # Define the table schema for Google Trends dataset
 schema = [
