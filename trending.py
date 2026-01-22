@@ -6,7 +6,7 @@ import time
 import os
 
 # Initialize BigQuery client
-client = bigquery.Client(project='project-adrian-aluoch')
+client = bigquery.Client(project='data-storage-485106')
 
 # Define Parameters
 params = {
@@ -47,7 +47,7 @@ bigdata = pd.DataFrame(records)
 bigdata.drop(columns=['google_trends_link', 'news_link'], inplace=True)
 
 # Define Table ID
-table_id = 'project-adrian-aluoch.google_trends.google_trending_in_kenya'
+table_id = 'data-storage-485106.google.trending_now'
 
 # Export Data to BigQuery
 job = client.load_table_from_dataframe(bigdata, table_id)
@@ -59,7 +59,7 @@ while job.state != 'DONE':
 # Define SQL Query to Retrieve Open Weather Data from Google Cloud BigQuery
 sql = (
     'SELECT *'
-    'FROM `project-adrian-aluoch.google_trends.google_trending_in_kenya`'
+    'FROM `data-storage-485106.google.trending_now`'
     'ORDER BY start_date DESC;'
       )
     
@@ -80,8 +80,8 @@ duplicated = data.duplicated(subset=['query', 'start_date']).sum()
 data.drop_duplicates(subset=['query', 'start_date'], inplace=True)
 
 # Define the dataset ID and table ID
-dataset_id = 'google_trends'
-table_id = 'google_trending_in_kenya'
+dataset_id = 'google'
+table_id = 'trending_now'
     
 # Define the table schema for Google Trends dataset
 schema = [
@@ -109,7 +109,7 @@ except Exception as e:
     print(f"Table {table.table_id} failed")
 
 # Define the BigQuery table ID
-table_id = 'project-adrian-aluoch.google_trends.google_trending_in_kenya'
+table_id = 'data-storage-485106.google.trending_now'
 
 # Load the data into the BigQuery table
 job = client.load_table_from_dataframe(data, table_id)
