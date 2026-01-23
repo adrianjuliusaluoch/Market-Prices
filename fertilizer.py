@@ -5,8 +5,14 @@ import numpy as np
 import requests
 from io import StringIO
 import urllib3
+from datetime import datetime
 import os
 import time
+
+now = datetime.now()
+year = now.year
+month = now.strftime("%b").lower()  # jan, feb, mar
+table_suffix = f"{year}_{month}"
 
 # Initialize BigQuery client
 client = bigquery.Client(project='data-storage-485106')
@@ -68,20 +74,22 @@ bigdata['retail'] = pd.to_numeric(bigdata['retail'].str.extract(r'(\d+\.?\d*)')[
 bigdata.drop(columns=['grade', 'sex'], inplace=True)
 
 # Define Table ID
-table_id = 'data-storage-485106.fertilizer.market_prices'
+table_id = 'data-storage-485106.fertilizer.market_prices_{table_suffix}'
 
 # Export Data to BigQuery
-job = client.load_table_from_dataframe(bigdata, table_id)
+job = client.load_table_from_dataframe(bigdata, table_id, job_config=bigquery.LoadJobConfig(
+        write_disposition="WRITE_APPEND"
+    ))
 while job.state != 'DONE':
     time.sleep(2)
     job.reload()
     print(job.state)
 
 # Define SQL Query to Retrieve Open Weather Data from Google Cloud BigQuery
-sql = (
-    'SELECT *'
-    'FROM `data-storage-485106.fertilizer.market_prices`'
-      )
+sql = (f"""
+        SELECT *
+        FROM `{table_id}`
+       """)
     
 # Run SQL Query
 data = client.query(sql).to_dataframe()
@@ -103,7 +111,7 @@ data.drop_duplicates(subset=['commodity', 'classification', 'market', 'wholesale
 
 # Define the dataset ID and table ID
 dataset_id = 'fertilizer'
-table_id = 'data-storage-485106.fertilizer.market_prices'
+table_id = 'market_prices_{table_suffix}'
     
 # Define the table schema for new table
 schema = [
@@ -131,10 +139,12 @@ except Exception as e:
     print(f"Table {table.table_id} failed")
 
 # Define the BigQuery table ID
-table_id = 'data-storage-485106.fertilizer.market_prices'
+table_id = 'data-storage-485106.fertilizer.market_prices_{table_suffix}'
 
 # Load the data into the BigQuery table
-job = client.load_table_from_dataframe(data, table_id)
+job = client.load_table_from_dataframe(data, table_id, job_config=bigquery.LoadJobConfig(
+        write_disposition="WRITE_APPEND"
+    ))
 
 # Wait for the job to complete
 while job.state != 'DONE':
