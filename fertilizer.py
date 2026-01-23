@@ -74,7 +74,7 @@ bigdata['retail'] = pd.to_numeric(bigdata['retail'].str.extract(r'(\d+\.?\d*)')[
 bigdata.drop(columns=['grade', 'sex'], inplace=True)
 
 # Define Table ID
-table_id = 'data-storage-485106.fertilizer.market_prices_{table_suffix}'
+table_id = f'data-storage-485106.fertilizer.market_prices_{table_suffix}'
 
 # Export Data to BigQuery
 job = client.load_table_from_dataframe(bigdata, table_id, job_config=bigquery.LoadJobConfig(
@@ -139,7 +139,7 @@ except Exception as e:
     print(f"Table {table.table_id} failed")
 
 # Define the BigQuery table ID
-table_id = 'data-storage-485106.fertilizer.market_prices_{table_suffix}'
+table_id = f'data-storage-485106.fertilizer.market_prices_{table_suffix}'
 
 # Load the data into the BigQuery table
 job = client.load_table_from_dataframe(data, table_id, job_config=bigquery.LoadJobConfig(
