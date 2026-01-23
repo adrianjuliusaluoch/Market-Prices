@@ -1,5 +1,7 @@
 # Import Packages
 from google.cloud import bigquery
+from google.api_core.exceptions import NotFound
+from datetime import datetime, timedelta
 import pandas as pd
 import numpy as np
 import requests
@@ -7,6 +9,11 @@ from io import StringIO
 import urllib3
 import os
 import time
+
+now = datetime.now()
+year = now.year
+month = now.strftime("%b").lower()  # jan, feb, mar
+table_suffix = f"{year}_{month}"
 
 # Initialize BigQuery client
 client = bigquery.Client(project='data-storage-485106')
@@ -69,20 +76,43 @@ bigdata['wholesale'] = pd.to_numeric(bigdata['wholesale'].str.extract(r'(\d+\.?\
 bigdata['retail'] = pd.to_numeric(bigdata['retail'].str.extract(r'(\d+\.?\d*)')[0], errors='coerce')
 
 # Define Table ID
-table_id = 'data-storage-485106.livestock.market_prices'
+table_id = f'data-storage-485106.livestock.market_prices_{table_suffix}'
 
-# Export Data to BigQuery
-job = client.load_table_from_dataframe(bigdata, table_id)
-while job.state != 'DONE':
-    time.sleep(2)
-    job.reload()
-    print(job.state)
+try:
+    if now.day == 1:
+        prev_month_date = now.replace(day=1) - timedelta(days=1)
+        prev_table_suffix = f"{prev_month_date.year}_{prev_month_date.strftime('%b').lower()}"
+        prev_table_id = f"data-storage-485106.livestock.market_prices_{prev_table_suffix}"
+        
+        try:
+            prev_data = client.query(f"SELECT * FROM `{prev_table_id}` ORDER BY country_code").to_dataframe()
+            bigdata = pd.concat([prev_data, bigdata], ignore_index=True)
+            print(f"Appended {len(prev_data)} rows from previous month table.")
+        except NotFound:
+            print("No previous month table found, skipping append.")
+    
+        job = client.load_table_from_dataframe(bigdata, table_id,
+            job_config=bigquery.LoadJobConfig(write_disposition="WRITE_APPEND")
+        )
+        job.result()
+        print(f"All data loaded into {table_id}, total rows: {len(bigdata)}")
+
+except Exception as e:
+    # Export Data to BigQuery
+    job = client.load_table_from_dataframe(bigdata, table_id, job_config=bigquery.LoadJobConfig(
+            write_disposition="WRITE_APPEND"
+        ))
+    
+    while job.state != 'DONE':
+        time.sleep(2)
+        job.reload()
+        print(job.state)
 
 # Define SQL Query to Retrieve Open Weather Data from Google Cloud BigQuery
-sql = (
-    'SELECT *'
-    'FROM `data-storage-485106.livestock.market_prices`'
-      )
+sql = (f"""
+        SELECT *
+        FROM `{table_id}`
+       """)
     
 # Run SQL Query
 data = client.query(sql).to_dataframe()
@@ -104,7 +134,7 @@ data.drop_duplicates(subset=['commodity', 'classification', 'grade', 'sex', 'mar
 
 # Define the dataset ID and table ID
 dataset_id = 'livestock'
-table_id = 'data-storage-485106.livestock.market_prices'
+table_id = f'market_prices_{table_suffix}'
     
 # Define the table schema for new table
 schema = [
@@ -134,7 +164,7 @@ except Exception as e:
     print(f"Table {table.table_id} failed")
 
 # Define the BigQuery table ID
-table_id = 'data-storage-485106.livestock.market_prices'
+table_id = f'data-storage-485106.livestock.market_prices_{table_suffix}'
 
 # Load the data into the BigQuery table
 job = client.load_table_from_dataframe(data, table_id)
@@ -147,7 +177,3 @@ while job.state != 'DONE':
 
 # Return Data Info
 print(f"Livestock data of shape {data.shape} has been successfully retrieved, saved, and appended to the BigQuery table.")
-
-
-
-
