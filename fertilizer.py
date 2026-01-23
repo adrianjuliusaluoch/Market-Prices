@@ -1,11 +1,12 @@
 # Import Packages
 from google.cloud import bigquery
+from google.api_core.exceptions import NotFound
+from datetime import datetime, timedelta
 import pandas as pd
 import numpy as np
 import requests
 from io import StringIO
 import urllib3
-from datetime import datetime
 import os
 import time
 
