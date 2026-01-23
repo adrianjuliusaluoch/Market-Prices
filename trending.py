@@ -64,7 +64,7 @@ try:
     if now.day == 1:
         prev_month_date = now.replace(day=1) - timedelta(days=1)
         prev_table_suffix = f"{prev_month_date.year}_{prev_month_date.strftime('%b').lower()}"
-        prev_table_id = f'data-storage-485106.google.trending_now_{table_suffix}'
+        prev_table_id = f'data-storage-485106.google.trending_now_{prev_table_suffix}'
         
         try:
             prev_data = client.query(f"SELECT * FROM `{prev_table_id}` ORDER BY country_code").to_dataframe()
