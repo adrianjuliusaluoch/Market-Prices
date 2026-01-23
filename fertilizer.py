@@ -76,14 +76,35 @@ bigdata.drop(columns=['grade', 'sex'], inplace=True)
 # Define Table ID
 table_id = f'data-storage-485106.fertilizer.market_prices_{table_suffix}'
 
-# Export Data to BigQuery
-job = client.load_table_from_dataframe(bigdata, table_id, job_config=bigquery.LoadJobConfig(
-        write_disposition="WRITE_APPEND"
-    ))
-while job.state != 'DONE':
-    time.sleep(2)
-    job.reload()
-    print(job.state)
+try:
+    if now.day == 1:
+        prev_month_date = now.replace(day=1) - timedelta(days=1)
+        prev_table_suffix = f"{prev_month_date.year}_{prev_month_date.strftime('%b').lower()}"
+        prev_table_id = f"data-storage-485106.fertilizer.market_prices_{prev_table_suffix}"
+        
+        try:
+            prev_data = client.query(f"SELECT * FROM `{prev_table_id}` ORDER BY country_code").to_dataframe()
+            bigdata = pd.concat([prev_data, bigdata], ignore_index=True)
+            print(f"Appended {len(prev_data)} rows from previous month table.")
+        except NotFound:
+            print("No previous month table found, skipping append.")
+    
+        job = client.load_table_from_dataframe(bigdata, table_id,
+            job_config=bigquery.LoadJobConfig(write_disposition="WRITE_APPEND")
+        )
+        job.result()
+        print(f"All data loaded into {table_id}, total rows: {len(bigdata)}")
+
+except Exception as e:
+    # Export Data to BigQuery
+    job = client.load_table_from_dataframe(bigdata, table_id, job_config=bigquery.LoadJobConfig(
+            write_disposition="WRITE_APPEND"
+        ))
+    
+    while job.state != 'DONE':
+        time.sleep(2)
+        job.reload()
+        print(job.state)
 
 # Define SQL Query to Retrieve Open Weather Data from Google Cloud BigQuery
 sql = (f"""
