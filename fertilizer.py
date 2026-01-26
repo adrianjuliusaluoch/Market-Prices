@@ -61,7 +61,7 @@ for commodity in commodities:
         market_prices = market_prices[0]
         bigdata = pd.concat([bigdata, market_prices], ignore_index=True)
         offset += 3000
-        sleep(1)  # optional to reduce server load
+        time.sleep(1)  # optional to reduce server load
 
 print(f"Collected {len(bigdata)} rows in total")
 
