@@ -85,7 +85,7 @@ if now.day == 1:
         
         try:
             prev_data = client.query(
-                f"SELECT * FROM `{prev_table_id}` ORDER BY country_code"
+                f"SELECT * FROM `{prev_table_id}`"
             ).to_dataframe()
             bigdata = pd.concat([prev_data, bigdata], ignore_index=True)
             print(f"Appended {len(prev_data)} rows from previous month table.")
