@@ -31,29 +31,37 @@ bigdata = pd.DataFrame()
 
 # Loop through commodities
 for commodity in commodities:
-    base_url = "https://kamis.kilimo.go.ke/site/market{}?product=" + str(commodity)+ "&per_page=3000"
+    base_url = "https://kamis.kilimo.go.ke/site/market{}?product=" + str(commodity) + "&per_page=3000"
 
-    # Define Offset
     offset = 0
 
-    # Run
     while True:
+        url = base_url.format("" if offset == 0 else f"/{offset}")
+        print(f"Fetching: {url}")
+
         try:
-            # Handle first page (no offset in URL)
-            url = base_url.format("" if offset == 0 else f"/{offset}")
-            print(f"Fetching: {url}")
-            
-            response = requests.get(url, verify=False)
+            # Add a timeout of 10 seconds
+            response = requests.get(url, verify=False, timeout=10)
+            response.raise_for_status()  # stops on HTTP errors
             market_prices = pd.read_html(StringIO(response.text))
 
-        except Exception as e:
-            print(f"Error fetching data: {e}")
-            break
-        
+            if not market_prices:
+                print(f"No data found at offset {offset}, stopping this commodity.")
+                break
+
+        except requests.exceptions.Timeout:
+            print(f"Timeout at offset {offset}, skipping this offset...")
+            offset += 3000
+            sleep(1)
+            continue  # skip this offset and try next
+        except requests.exceptions.RequestException as e:
+            print(f"Request failed at offset {offset}: {e}")
+            break  # stop this commodity
+
         market_prices = market_prices[0]
-        
         bigdata = pd.concat([bigdata, market_prices], ignore_index=True)
         offset += 3000
+        sleep(1)  # optional to reduce server load
 
 print(f"Collected {len(bigdata)} rows in total")
 
